@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <select id="mySelect">
+      <option disabled selected>Model</option>
+      <option value="alistar.ply">alistar</option>
+      <option value="beethoven.ply">beethoven</option>
+      <option value="big_spider.ply">big_spider</option>
+      <option value="bun_zipper.ply">bun_zipper</option>
+      <option value="dolphins.ply">dolphins</option>
+      <option value="dragon.ply">dragon</option>
+      <option value="egret.ply">egret</option>
+      <option value="f16.ply">f16</option>
+      <option value="foot.ply">foot</option>
+      <option value="fracttree.ply">fracttree</option>
+      <option value="galleon.ply">galleon</option>
+      <option value="helix.ply">helix</option>
+      <option value="pickup_big.ply">pickup_big</option>
+      <option value="street_lamp.ply">street_lamp</option>
+    </select>
+
+    <div class="option">        
+      <div>
+        <input type="checkbox" id="segment">
+        <label for="segment">wire frame</label>
+      </div>
+      <div>
+        <input type="checkbox" id="point">
+        <label for="point">show point</label>
+      </div>
+    </div>
+
+    <canvas id="myCanvas"></canvas>
+
+    <div class="menu">
+      <div class="menu__item">
+        <span class="menu__title">Translation</span>
+        <button data-action="translate" data-direction="up">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+        <div class="menu__sub-item">
+          <button data-action="translate" data-direction="left">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <button data-action="translate" data-direction="centre">
+            <i class="fas fa-compress"></i>
+          </button>
+          <button data-action="translate" data-direction="right">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+        <button data-action="translate" data-direction="down">
+          <i class="fas fa-arrow-down"></i>
+        </button>
+      </div>
+
+      <div class="menu__item">
+        <span class="menu__title">Rotation</span>
+        <button data-action="rotate" data-direction="up">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+        <div class="menu__sub-item">
+          <button data-action="rotate" data-direction="left">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <button data-action="rotate" data-direction="centre">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+          <button data-action="rotate" data-direction="right">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+        <button data-action="rotate" data-direction="down">
+          <i class="fas fa-arrow-down"></i>
+        </button>
+      </div>
+
+      <div class="menu__item">
+        <span class="menu__title">Zoom</span>
+        <div class="menu__sub-item">
+          <button data-action="zoom" data-sens="in">
+            <i class="fas fa-search-minus"></i>
+          </button>
+          <button data-action="zoom" data-sens="fit">
+            <i class="fas fa-compress-arrows-alt"></i>
+          </button>
+          <button data-action="zoom" data-sens="out">
+            <i class="fas fa-search-plus"></i>
+          </button>
+        </div>
+      </div>      
+    </div>
+
+    <script src="node_modules/mathjs/dist/math.min.js"></script>
+    <script src="script.js" type="module"></script>
+  </body>
+</html>

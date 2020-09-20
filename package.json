@@ -1,0 +1,16 @@
+{
+  "name": "plyreader",
+  "version": "1.0.0",
+  "description": "ply file reader",
+  "main": "index.html",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.14.0",
+    "mathjs": "^7.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
