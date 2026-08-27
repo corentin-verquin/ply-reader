@@ -1,11 +1,20 @@
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 # S3 Bucket (Website Hosting)
 resource "aws_s3_bucket" "website_bucket" {
-  bucket = "ply-reader-website"
+  bucket = "ply-reader-website-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}-an"
+  bucket_namespace = "account-regional"
 
   tags = {
     Environment = "prod"
   }
 }
+
+output "s3_bucket_name" {
+  value = aws_s3_bucket.website_bucket.bucket
+}
+
 
 resource "aws_s3_bucket_public_access_block" "allow_public" {
   bucket = aws_s3_bucket.website_bucket.id

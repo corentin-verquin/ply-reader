@@ -2,80 +2,87 @@ name: Deploy to Production
 run-name: Deploy to Production - ${{ github.ref_name }}
 
 on:
-    release:
-        types: [published]
-    workflow_dispatch:
+  release:
+    types: [published]
+  workflow_dispatch:
 
 concurrency:
-    group: deploy-prod
-    cancel-in-progress: false
+  group: deploy-prod
+  cancel-in-progress: false
 
 permissions:
-    contents: read
-    id-token: write
+  contents: read
+  id-token: write
 
 jobs:
-    infra:
-        name: 🏗️ Initialize Infrastructure
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: infra
+  infra:
+    name: 🏗️ Initialize Infrastructure
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
 
-        steps:
-            - name: 📥 Checkout repo
-              uses: actions/checkout@v4
+    outputs:
+      s3-name: ${{ steps.s3_bucket.outputs.s3-name }}
 
-            - name: 🔐 Configure AWS credentials
-              uses: aws-actions/configure-aws-credentials@v3
-              with:
-                  role-to-assume: ${{ vars.AWS_ROLE }}
-                  aws-region: ${{ vars.AWS_REGION }}
-                  audience: sts.amazonaws.com
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
 
-            - name: ⚙️ Install Terraform
-              uses: hashicorp/setup-terraform@v3
-              with:
-                  terraform_version: 1.11.4
+      - name: 🔐 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
+          audience: sts.amazonaws.com
 
-            - name: 🧱 Terraform Init
-              run: terraform init
+      - name: ⚙️ Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
 
-            - name: 🔍 Terraform Plan
-              run: terraform plan
+      - name: 🧱 Terraform Init
+        run: terraform init
 
-            - name: ✅ Terraform Apply
-              run: terraform apply -auto-approve
+      - name: 🔍 Terraform Plan
+        run: terraform plan
 
-    deploy-frontend:
-        needs: [infra]
-        name: 🚀 Deploy Frontend
-        runs-on: ubuntu-latest
+      - name: ✅ Terraform Apply
+        run: terraform apply -auto-approve
 
-        steps:
-            - name: 📥 Checkout repo
-              uses: actions/checkout@v4
+      - name: export S3 Bucket Name
+        id: s3_bucket
+        run: echo "s3-name=$(terraform output -raw s3_bucket_name)" >> $GITHUB_OUTPUT
 
-            - name: 🔐 Configure AWS credentials
-              uses: aws-actions/configure-aws-credentials@v3
-              with:
-                  role-to-assume: ${{ vars.AWS_ROLE }}
-                  aws-region: ${{ vars.AWS_REGION }}
-                  audience: sts.amazonaws.com
+  deploy-frontend:
+    needs: [infra]
+    name: 🚀 Deploy Frontend
+    runs-on: ubuntu-latest
 
-            - name: ⚙️ Setup Node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
-                  cache: "npm"
-                  cache-dependency-path: package-lock.json
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
 
-            - name: 🧩 Install deps
-              run: npm ci            
+      - name: 🔐 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
+          audience: sts.amazonaws.com
 
-            - name: 🚀 Deploy
-              run: |
-                aws s3 sync . s3://ply-reader-website \
-                    --exclude "infra/*" \
-                    --exclude ".git/*" \
-                    --delete
+      - name: ⚙️ Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: 🧩 Install deps
+        run: npm ci
+
+      - name: 🚀 Deploy
+        run: |
+          aws s3 sync . s3://${{ needs.infra.outputs.s3-name }} \
+              --exclude "infra/*" \
+              --exclude ".git/*" \
+              --delete
